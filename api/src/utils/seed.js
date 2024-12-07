@@ -1,7 +1,10 @@
 import bcrypt from 'bcryptjs';
 
+import path  from 'node:path';
+
 import { PrismaClient } from "@prisma/client";
 import fs from "node:fs/promises";
+import * as url from 'node:url';
 
 
 const prisma = new PrismaClient();
@@ -27,6 +30,13 @@ class Seeder {
         try {
             
             const json_path = import.meta.dirname+"/seed_data/users.json"
+
+            // console.log(import.meta.url);
+
+            // console.log(url.fileURLToPath(import.meta.url));
+
+            
+            
             const content = await fs.readFile(json_path, 'utf-8')
             const users = JSON.parse(content)
 
@@ -44,8 +54,12 @@ class Seeder {
 
     static async runVideoSeeders() {
         try {
+            const current_path=url.fileURLToPath(import.meta.url)
+
+            const dirname = path.dirname(current_path);
             
-            const json_path = import.meta.dirname+"/seed_data/videos.json"
+            // const json_path = import.meta.dirname+"/seed_data/videos.json"
+            const json_path = dirname+"/seed_data/videos.json"
             const content = await fs.readFile(json_path, 'utf-8')
             const videos = JSON.parse(content)
             const users = (await prisma.user.findMany({
