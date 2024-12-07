@@ -3,7 +3,10 @@ import VideoService from "../services/VideoService.js";
 import ValidationError from "../utils/validatators/validationError.js";
 import VideoValidator from "../utils/validatators/videoValidatator.js";
 import UserService from "../services/UserService.js";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import {createReadStream} from "node:fs";
+
+
 import { mediaDir } from "../utils/multerUpload.js";
 
 export default class VideoController {
@@ -104,8 +107,35 @@ export default class VideoController {
         const { id } = req.params;
         
         try {
+            // api/src/media/image.mp4
             const video = await this.videoService.get(parseInt(id));
-            res.status(status.HTTP_200_OK).json(video);
+
+            // const path=video.mediaPath;
+
+            // recuperer le fichier
+
+            const path='src/media/image.mp4';
+
+            // recuperer la taille du fichier
+            // fs.stat donne les infirmations du fichier dont la taille du fichier
+
+            const fileSize=(await fs.stat(path)).size;
+
+            console.log(fileSize);
+
+            const stream=createReadStream(path);
+            const head={
+                "Content-Length":fileSize,
+                "Content-Type":'video/mp4'
+            }
+
+            // charger l'entete
+
+            res.writeHead(status.HTTP_200_OK, head)
+
+            // c
+            stream.pipe(res)
+            // res.status(status.HTTP_200_OK).json(video);
         } catch (error) {
             console.error(error);
             res.status(status.HTTP_500_INTERNAL_SERVER_ERROR).json();
